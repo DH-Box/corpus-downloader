@@ -33,13 +33,22 @@ def cli(ctx):
     ctx.obj = Config()
     
 @cli.command()
+@click.option('--centuries', help='Comma-separated list of centuries to display, e.g. 16th,17th.')
 @click.pass_obj
-def list(ctx):
+def list(ctx, centuries):
     """Lists corpora available for download."""
     click.echo('Listing!')
     click.echo(ctx.downloadTo)
     corpuslist = readCorpusList()
-    showCorpusList(corpuslist)
+
+    if centuries: 
+        centuries = centuries.split(',')
+        print(centuries)
+
+
+
+    fields = ['shortname', 'title', 'centuries', 'categories']
+    showCorpusList(corpuslist, fields, centuries)
     
 @click.pass_obj
 def readCorpusList(ctx): 
@@ -54,11 +63,14 @@ def readCorpusList(ctx):
                     Is it in the right format?" % ctx.listFilename)
     return corpusListDict
 
-def showCorpusList(corpuslist):
-    fields = ['shortname', 'title', 'centuries', 'categories']
+def showCorpusList(corpuslist, fields, centuries=None):
     df = pandas.DataFrame(corpuslist)
     table = df[fields]
     pandas.set_option('display.width', None) # set that as the max width in Pandas
+
+    if centuries is not None: 
+        centuries = ('|').join(centuries) # Pandas format for OR statements is like "16th|17th"
+        table = table[table['centuries'].str.contains(centuries, na=False)]
     print(table)
 
 @cli.command()
