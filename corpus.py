@@ -1,12 +1,27 @@
 import click
+import yaml
+import pandas
+from tabulate import tabulate
 
 class Config(object):
-    # TODO: get config
-    dest = 'data'
+    def __init__(self, config='config.yaml'):
+        """Gets the config file. Unless the user specifies something, 
+        this will be in the current directory."""
+        try: 
+            self.config = open(config).read()
+        except: 
+            raise click.ClickException("Couldn't find the config file!")
+        try: 
+            configDict = yaml.safe_load(self.config)
+            self.listFilename = configDict['corpuslist']
+            self.downloadTo = configDict['downloadTo']
+        except: 
+            raise click.ClickException("Couldn't parse the config file. Is it in the right format?")
 
 @click.group()
 @click.version_option('0.1')
-def cli():
+@click.pass_context
+def cli(ctx):
     """Corpus is a command line tool that downloads textual corpora. 
 
     This tool was originally created for use in the Digital Humanities
@@ -14,12 +29,37 @@ def cli():
     """
     # Create a config object and remember it as as the context object.  From
     # this point onwards other commands can refer to it by using the
-    # @pass_config decorator.
-
+    # @pass_obj decorator.
+    ctx.obj = Config()
+    
 @cli.command()
-def list():
+@click.pass_obj
+def list(ctx):
     """Lists corpora available for download."""
     click.echo('Listing!')
+    click.echo(ctx.downloadTo)
+    corpuslist = readCorpusList()
+    showCorpusList(corpuslist)
+    
+@click.pass_obj
+def readCorpusList(ctx): 
+    try: 
+        corpusList = open(ctx.listFilename).read()
+    except: 
+            raise click.ClickException("Couldn't read the corpus list from %" % ctx.listFilename)
+    try: 
+        corpusListDict = yaml.safe_load(corpusList)
+    except: 
+            raise click.ClickException("Couldn't parse the corpus list from %.\
+                    Is it in the right format?" % ctx.listFilename)
+    return corpusListDict
+
+def showCorpusList(corpuslist):
+    fields = ['shortname', 'title', 'centuries', 'categories']
+    df = pandas.DataFrame(corpuslist)
+    table = df[fields]
+    pandas.set_option('display.width', None) # set that as the max width in Pandas
+    print(table)
 
 @cli.command()
 @click.argument('src')
@@ -36,3 +76,5 @@ def download(src, dest):
     click.echo('Downloading corpus %s to %s' % (src, os.path.abspath(dest)))
     repo.home = dest
 
+if __name__ == '__main__':
+    cli()
