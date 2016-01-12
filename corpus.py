@@ -34,21 +34,15 @@ def cli(ctx):
     
 @cli.command()
 @click.option('--centuries', help='Comma-separated list of centuries to display, e.g. 16th,17th.')
+@click.option('--categories', help='Comma-separated list of categories to display, e.g. literature,classics.')
 @click.pass_obj
-def list(ctx, centuries):
+def list(ctx, centuries, categories):
     """Lists corpora available for download."""
     click.echo('Listing!')
     click.echo(ctx.downloadTo)
     corpuslist = readCorpusList()
-
-    if centuries: 
-        centuries = centuries.split(',')
-        print(centuries)
-
-
-
     fields = ['shortname', 'title', 'centuries', 'categories']
-    showCorpusList(corpuslist, fields, centuries)
+    showCorpusList(corpuslist, fields, centuries, categories)
     
 @click.pass_obj
 def readCorpusList(ctx): 
@@ -63,14 +57,23 @@ def readCorpusList(ctx):
                     Is it in the right format?" % ctx.listFilename)
     return corpusListDict
 
-def showCorpusList(corpuslist, fields, centuries=None):
+def filterCorpusList(corpuslist, field, values): 
+    values = values.split(',')
+    values = ('|').join(values) # Pandas format for OR statements is like "16th|17th"
+    corpuslist = corpuslist[corpuslist[field].str.contains(values, na=False)]
+    return corpuslist
+    
+def showCorpusList(corpuslist, fields, centuries=None, categories=None):
     df = pandas.DataFrame(corpuslist)
     table = df[fields]
     pandas.set_option('display.width', None) # set that as the max width in Pandas
 
     if centuries is not None: 
-        centuries = ('|').join(centuries) # Pandas format for OR statements is like "16th|17th"
-        table = table[table['centuries'].str.contains(centuries, na=False)]
+        table = filterCorpusList(table, 'centuries', centuries)
+
+    if categories is not None: 
+        table = filterCorpusList(table, 'categories', categories)
+
     print(table)
 
 @cli.command()
