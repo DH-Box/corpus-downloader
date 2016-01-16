@@ -123,36 +123,29 @@ def download(ctx, shortname, destination, markup=None):
             raise click.ClickException('There are %s text types in this corpus: %s. Please specify which one you want with the --markup flag.' % (len(text), markupTypes))
 
         markups = markup.split(',')
-        
+
         textDF = pandas.DataFrame(text)
 
-        # try: 
-        urls = []
         for markupType in markups: 
             markupRecord = textDF[textDF.markup == markupType] # Get the record with our markup type. 
-            url = markupRecord['url'].max() # Max is a shortcut for getting the string value of the URL. 
-            urls.append(url)
-
-            # click.echo('Downloading corpus %s of type %s from to %s.' % (shortname, markupType, destination))
-        # except: 
-            # raise click.ClickException("Couldn't parse markup types for some reason!")
+            click.echo('Downloading corpus %s of type %s to %s.' % (shortname, markupType, destination))
+            downloadFromRecord(markupRecord)
     else:
         # We have only one text type. 
+        print(text)
+        click.echo('Downloading corpus %s of type %s to %s.' % (shortname, text['markup'], destination))
+        markupRecord = pandas.DataFrame(text, index=[0]) # Pandas requires we pass an index here. 
+        downloadFromRecord(markupRecord)
+        
         urls = corpus.text['url']
 
-    print('urls: ', urls) 
-
-    # Do the actual downloading. 
-
-    # Handle multiple URLs
-    if type(urls) == type([]):  
-        for url in urls: 
-            click.echo('Downloading corpus %s from %s to %s.' % (shortname, url, destination))
-    else: 
-        # Handle a single URL
-        url = urls
-        click.echo('Downloading corpus %s from %s to %s.' % (shortname, url, destination))
-
+def downloadFromRecord(markupRecord): 
+    """ This helper function takes a markup record with the fields `url` and `file-format`, 
+    and downloads it according to its file type.
+    """ 
+    print('\nDownloading from record!\n')
+    print(markupRecord)
+    print('shape: ', markupRecord.shape[0])
     
 
 
