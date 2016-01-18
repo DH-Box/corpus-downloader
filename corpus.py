@@ -130,14 +130,19 @@ def download(ctx, shortname, destination, markup=None):
             markupRecord = textDF[textDF.markup == markupType] # Get the record with our markup type. 
             click.echo('Downloading corpus %s of type %s to %s.' % (shortname, markupType, destination))
             downloadFromRecord(markupRecord)
-    else:
+    elif type(text['url']) == type([]):
+        # This means we have one text type with several URLs. 
+        markupRecord = pandas.DataFrame(text)
+        print(markupRecord)
+        for index, record in markupRecord.iterrows(): 
+            downloadFromRecord(record)
+
+    else: 
         # We have only one text type. 
         print(text)
         click.echo('Downloading corpus %s of type %s to %s.' % (shortname, text['markup'], destination))
         markupRecord = pandas.DataFrame(text, index=[0]) # Pandas requires we pass an index here. 
         downloadFromRecord(markupRecord)
-        
-        urls = corpus.text['url']
 
 def downloadFromRecord(markupRecord): 
     """ This helper function takes a markup record with the fields `url` and `file-format`, 
@@ -145,9 +150,7 @@ def downloadFromRecord(markupRecord):
     """ 
     print('\nDownloading from record!\n')
     print(markupRecord)
-    print('shape: ', markupRecord.shape[0])
-    
-
+    numRecords = markupRecord.shape[0]
 
 if __name__ == '__main__':
     cli()
