@@ -128,31 +128,61 @@ def download(ctx, shortname, destination, markup=None):
 
         textDF = pandas.DataFrame(text)
 
-        for markupType in markups: 
-            markupRecord = textDF[textDF.markup == markupType] # Get the record with our markup type. 
+        for markupType in markups:
+            markupRecord = textDF[textDF.markup == markupType] # Get the record with our markup type.
             click.echo('Downloading corpus %s of type %s to %s.' % (shortname, markupType, destination))
             downloadFromRecord(markupRecord)
     elif type(text['url']) == type([]):
-        # This means we have one text type with several URLs. 
+        # This means we have one text type with several URLs.
         markupRecord = pandas.DataFrame(text)
         print(markupRecord)
-        for index, record in markupRecord.iterrows(): 
-            downloadFromRecord(record)
+        for index, record in markupRecord.iterrows():
+            downloadFromRecord(record, destination)
 
-    else: 
-        # We have only one text type. 
+    else:
+        # We have only one text type.
         print(text)
         click.echo('Downloading corpus %s of type %s to %s.' % (shortname, text['markup'], destination))
-        markupRecord = pandas.DataFrame(text, index=[0]) # Pandas requires we pass an index here. 
-        downloadFromRecord(markupRecord)
+        markupRecord = pandas.DataFrame(text, index=[0]) # Pandas requires we pass an index here.
+        downloadFromRecord(markupRecord, destination)
 
-def downloadFromRecord(markupRecord): 
-    """ This helper function takes a markup record with the fields `url` and `file-format`, 
+def downloadFromRecord(markupRecord, destination):
+    """ This helper function takes a markup record with the fields `url` and `file-format`,
     and downloads it according to its file type.
-    """ 
+    """
     print('\nDownloading from record!\n')
     print(markupRecord)
     numRecords = markupRecord.shape[0]
+    form = markupRecord['file-format'][0]
+    url = markupRecord['url'][0]
+    print('form: ', form)
+    print('url: ', url)
+    if form == 'git':
+        gitDownload(url, destination)
+    if form == 'zip':
+        zipDownload(url, destination)
+    if form == 'tar.gz':
+        tarDownload(url, destination)
+
+def gitDownload(url, destination):
+    print('Now git cloning from URL %s to %s' % (url, destination))
+    print(sh.cd(destination))
+    print(sh.pwd())
+    for line in sh.git.clone(url, '--progress', _err_to_out=True, _iter=True):
+        print(line)
+    return
+
+def zipDownload(url, destination):
+    print('Now downloading zip from URL %s to %s' % (url, destination))
+    print(sh.cd(destination))
+    sh.wget(url)
+    for line in sh.wget(url, _err_to_out=True, _iter=True):
+        print(line)
+    return
+
+def tarDownload(url, destination):
+    print('Now downloading tarball from URL %s to %s' % (url, destination))
+    return
 
 if __name__ == '__main__':
     cli()
