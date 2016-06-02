@@ -21,9 +21,11 @@ class Config(object):
             raise click.ClickException("Couldn't parse the config file. Is it in the right format?")
 
 @click.group()
+@click.option('--verbose', is_flag=True, help='Get extra information about what\'s happening behind the scenes.')
+@click.option('--debug', is_flag=True, help='Turn on debugging messages.')
 @click.version_option('0.1')
 @click.pass_context
-def cli(ctx):
+def cli(ctx, verbose, debug):
     """Corpus is a command line tool that lists and downloads textual corpora.
 
     This tool was originally created for use in the Digital Humanities
@@ -35,7 +37,13 @@ def cli(ctx):
     ctx.obj = Config()
 
     # This allows Pandas to display at the current terminal width.
-    pandas.set_option('display.width', None)
+    pandas_set_option('display.width', None)
+
+    if verbose:
+        logging.basicConfig(level=logging.INFO)
+
+    if debug:
+        logging.basicConfig(level=logging.DEBUG)
 
 @cli.command()
 @click.option('--centuries', help='Comma-separated list of centuries to display, e.g. 16th,17th.')
