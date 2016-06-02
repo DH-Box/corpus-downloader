@@ -1,7 +1,9 @@
 import click
 import yaml
-import pandas
+from pandas import DataFrame as df
+from pandas import set_option as pandas_set_option
 import sh
+import logging
 
 class Config(object):
     def __init__(self, config='config.yaml'):
