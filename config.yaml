@@ -1,2 +1,2 @@
 corpuslist: corpus-list/corpus-list.yaml   
-downloadTo: corpora
+downloadTo: /home/jon/corpora
