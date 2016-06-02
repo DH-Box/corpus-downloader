@@ -51,7 +51,7 @@ def cli(ctx, verbose, debug):
 @click.pass_obj
 def list(ctx, centuries, categories):
     """Lists corpora available for download."""
-    click.echo('Listing!')
+    logging.info('Running subcommand list().')
     click.echo(ctx.downloadTo)
     corpuslist = readCorpusList()
     fields = ['title', 'centuries', 'categories']
@@ -68,9 +68,7 @@ def readCorpusList(ctx):
         raise click.ClickException("Couldn't read the corpus list from %s." % ctx.listFilename)
     try:
         corpusListDict = yaml.safe_load(corpusList)
-        corpusDict = {x['shortname']: x for x in corpusListDict}
-        print(corpusDict)
-        corpusListDF = pandas.DataFrame(corpusListDict).set_index('shortname')
+        corpusListDF = df(corpusListDict).set_index('shortname')
     except:
         raise click.ClickException("Couldn't parse the corpus list from %s. Is it in the right format?" % ctx.listFilename)
 
@@ -136,7 +134,7 @@ def download(ctx, shortname, destination, markup=None):
 
         markups = markup.split(',')
 
-        textDF = pandas.DataFrame(text)
+        textDF = df(text)
 
         for markupType in markups:
             markupRecord = textDF[textDF.markup == markupType] # Get the record with our markup type.
