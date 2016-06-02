@@ -142,54 +142,51 @@ def download(ctx, shortname, destination, markup=None):
             downloadFromRecord(markupRecord)
     elif type(text['url']) == type([]):
         # This means we have one text type with several URLs.
-        markupRecord = pandas.DataFrame(text)
-        print(markupRecord)
-        for index, record in markupRecord.iterrows():
-            downloadFromRecord(record, destination)
-
+        print(text)
+        for url in text['url']:
+            downloadFromRecord(text, url, destination)
     else:
         # We have only one text type.
         print(text)
         click.echo('Downloading corpus %s of type %s to %s.' % (shortname, text['markup'], destination))
-        markupRecord = pandas.DataFrame(text, index=[0]) # Pandas requires we pass an index here.
-        downloadFromRecord(markupRecord, destination)
+        url = text['url']
+        downloadFromRecord(text, url, destination)
 
-def downloadFromRecord(markupRecord, destination):
+def downloadFromRecord(record, url, destination):
     """ This helper function takes a markup record with the fields `url` and `file-format`,
     and downloads it according to its file type.
     """
-    print('\nDownloading from record!\n')
-    print(markupRecord)
-    numRecords = markupRecord.shape[0]
-    form = markupRecord['file-format'][0]
-    url = markupRecord['url'][0]
+    logging.info('\nDownloading from record: !\n', record)
+    form = record['file-format']
     print('form: ', form)
     print('url: ', url)
+    print(sh.cd(destination))
     if form == 'git':
         gitDownload(url, destination)
-    if form == 'zip':
-        zipDownload(url, destination)
-    if form == 'tar.gz':
-        tarDownload(url, destination)
+    if form == 'zip' or form == 'tar.gz':
+        archiveDownload(url, destination, form)
 
 def gitDownload(url, destination):
     print('Now git cloning from URL %s to %s' % (url, destination))
-    print(sh.cd(destination))
     print(sh.pwd())
     for line in sh.git.clone(url, '--progress', _err_to_out=True, _iter=True):
         print(line)
     return
 
-def zipDownload(url, destination):
-    print('Now downloading zip from URL %s to %s' % (url, destination))
-    print(sh.cd(destination))
-    sh.wget(url)
-    for line in sh.wget(url, _err_to_out=True, _iter=True):
+def archiveDownload(url, destination, archiveType):
+    logging.info('Now downloading archive file from URL %s to %s' % (url, destination))
+    # No-clobber makes it so that it doesn't download existing files.
+    for line in sh.wget(url, '--no-clobber', _err_to_out=True, _iter=True):
         print(line)
-    return
-
-def tarDownload(url, destination):
-    print('Now downloading tarball from URL %s to %s' % (url, destination))
+    filename = url.split('/')[-1]
+    if archiveType == 'zip':
+        logging.info('Unzipping zip file from: ', filename)
+        sh.unzip(filename)
+    elif archiveType == 'tar.gz':
+        logging.info('Untarring tar.gz file from: ', filename)
+        sh.tar('-xvzf', filename )
+    logging.info('Removing archive file.')
+    sh.rm(filename)
     return
 
 if __name__ == '__main__':
