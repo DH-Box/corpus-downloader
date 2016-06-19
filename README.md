@@ -1,8 +1,8 @@
 #Corpus: A Textual Corpus Downloader for Digital Humanities
 
-Corpus is a command-line textual corpus downloader, designed for use in the Digital Humanities. This program is useful for anyone that needs to download large amounts of text. 
+Corpus is a command-line textual corpus downloader, designed for use in the Digital Humanities. This program is useful for anyone that needs to download large amounts of text, say, for text analysis. Want to conduct a digital macroanalysis of all Shakespeare plays? How about a linguistic study of a news corpus? This tool helps you get those texts, so you spend less time online and more time with the analysis itself. 
 
-Corpus handles downloading corpora from a few different protocols and file types. It does the equivalent of git cloning (with recursive submodule checkout, as well) and wgetting, but also unzips or untars archives, simplifying the process of getting a corpus.
+Corpus handles downloading corpora from a few different protocols and file types. It does the equivalent of `git clone` (with recursive submodule checkout, as well) and `wget`, but also unzips and untars archives, simplifying the process of getting a corpus.
 
 ## Demo
 
@@ -109,5 +109,5 @@ downloadTo: ~/corpora
 
 ## Installing
 
-Simply run `pip3 install corpus`. (Make sure you have pip3, the python package manager for Python 3 installed first.) 
+Until this package shows up on Pypi, you can change into this program’s directory and run `pip3 install .`. (Make sure you have pip3, the python package manager for Python 3 installed first.) 
 
