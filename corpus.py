@@ -132,14 +132,16 @@ def download(ctx, shortname, destination, markup=None):
             markupTypes = ', '.join([textType['markup'] for textType in text])
             raise click.ClickException('There are %s text types in this corpus: %s. Please specify which one you want with the --markup flag.' % (len(text), markupTypes))
 
+        # Make a list of markup types the user has specified. 
         markups = markup.split(',')
 
-        textDF = df(text)
+        for record in text: 
+            print(record)
+            if record['markup'] in markups: 
+                url = record['url']
+                click.echo('Downloading corpus %s of type %s to %s from URL %s.' % (shortname, record['markup'], destination, url))
+                downloadFromRecord(record, url, destination)
 
-        for markupType in markups:
-            markupRecord = textDF[textDF.markup == markupType] # Get the record with our markup type.
-            click.echo('Downloading corpus %s of type %s to %s.' % (shortname, markupType, destination))
-            downloadFromRecord(markupRecord)
     elif type(text['url']) == type([]):
         # This means we have one text type with several URLs.
         print(text)
@@ -169,7 +171,7 @@ def downloadFromRecord(record, url, destination):
 def gitDownload(url, destination):
     print('Now git cloning from URL %s to %s' % (url, destination))
     print(sh.pwd())
-    for line in sh.git.clone(url, '--progress', _err_to_out=True, _iter=True):
+    for line in sh.git.clone(url, '--progress', '--recursive', _err_to_out=True, _iter=True):
         print(line)
     return
 
