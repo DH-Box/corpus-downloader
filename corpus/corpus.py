@@ -6,7 +6,6 @@ import sh
 import logging
 from pkg_resources import resource_filename
 
-
 class Config(object):
     def __init__(self):
         """Gets the config file. Unless the user specifies something,
@@ -70,7 +69,7 @@ def readCorpusList(ctx):
     """
     try:
         # corpusList = open(ctx.listFilename).read()
-        corpusListFile = resource_filename(__name__, 'corpus-list.yaml')
+        corpusListFile = resource_filename(__name__, 'corpus-list/corpus-list.yaml')
         corpusList = open(corpusListFile).read() 
     except:
         raise click.ClickException("Couldn't read the corpus list from %s." % corpusListFile)
