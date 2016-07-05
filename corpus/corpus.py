@@ -4,15 +4,21 @@ from pandas import DataFrame as df
 from pandas import set_option as pandas_set_option
 import sh
 import logging
+from pkg_resources import resource_filename
+
 
 class Config(object):
-    def __init__(self, config='config.yaml'):
+    def __init__(self):
         """Gets the config file. Unless the user specifies something,
         this will be in the current directory."""
+
+        # Get config file, whereever that is in the user's system. 
+        config = resource_filename(__name__, 'config.yaml')
+
         try:
             self.config = open(config).read()
         except:
-            raise click.ClickException("Couldn't find the config file!")
+            raise click.ClickException("Couldn't find the config file from %s." % config)
         try:
             configDict = yaml.safe_load(self.config)
             self.listFilename = configDict['corpuslist']
@@ -63,9 +69,11 @@ def readCorpusList(ctx):
     Returns a pandas data frame.
     """
     try:
-        corpusList = open(ctx.listFilename).read()
+        # corpusList = open(ctx.listFilename).read()
+        corpusListFile = resource_filename(__name__, 'corpus-list.yaml')
+        corpusList = open(corpusListFile).read() 
     except:
-        raise click.ClickException("Couldn't read the corpus list from %s." % ctx.listFilename)
+        raise click.ClickException("Couldn't read the corpus list from %s." % corpusListFile)
     try:
         corpusListDict = yaml.safe_load(corpusList)
         corpusListDF = df(corpusListDict).set_index('shortname')

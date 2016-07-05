@@ -1,3 +1,6 @@
 [submodule "corpus-list"]
 	path = corpus-list
 	url = https://github.com/JonathanReeve/corpus-list.git
+[submodule "corpus/corpus-list"]
+	path = corpus/corpus-list
+	url = https://github.com/JonathanReeve/corpus-list
