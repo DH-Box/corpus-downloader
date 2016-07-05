@@ -109,5 +109,10 @@ downloadTo: ~/corpora
 
 ## Installing
 
-Until this package shows up on Pypi, you can change into this program’s directory and run `pip3 install .`. (Make sure you have pip3, the python package manager for Python 3 installed first.) 
+Until this package shows up on Pypi, you can clone this repository (recursively, so you get the corpus list, too), change into this program’s directory and install it with pip3. (Make sure you have pip3, the python package manager for Python 3 installed first.) 
 
+```
+git clone --recursive https://github.com/DH-Box/corpus-downloader
+cd corpus-downloader
+pip3 install .
+```
