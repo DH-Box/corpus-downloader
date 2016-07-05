@@ -1,0 +1,2 @@
+include config.yaml
+include corpus-list/corpus-list.yaml
