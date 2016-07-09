@@ -1,2 +1,2 @@
-include config.yaml
+include corpus/config.yaml
 include corpus/corpus-list/corpus-list.yaml
