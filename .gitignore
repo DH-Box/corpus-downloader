@@ -1,2 +1,4 @@
 corpus/__pycache__/
 corpus_downloader.egg-info/
+MANIFEST
+dist/
