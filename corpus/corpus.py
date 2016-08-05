@@ -34,12 +34,13 @@ def cli(verbose, debug):
 @cli.command()
 @click.option('--centuries', help='Comma-separated list of centuries to display, e.g. 16th,17th.')
 @click.option('--categories', help='Comma-separated list of categories to display, e.g. literature,classics.')
-def list(centuries, categories):
+@click.option('--languages', help='Comma-separated list of languages to display, e.g. eng,deu.')
+def list(centuries, categories, languages):
     """Lists corpora available for download."""
     logging.info('Running subcommand list().')
     corpuslist = readCorpusList()
     fields = ['title', 'centuries', 'categories', 'languages']
-    showCorpusList(corpuslist, fields, centuries, categories)
+    showCorpusList(corpuslist, fields, centuries, categories, languages)
 
 def readCorpusList():
     """Reads the corpus list from corpus-list.yaml (or other file specified in the config).
@@ -64,7 +65,7 @@ def filterCorpusList(corpuslist, field, values):
     corpuslist = corpuslist[corpuslist[field].str.contains(values, na=False)]
     return corpuslist
 
-def showCorpusList(corpusListDF, fields, centuries=None, categories=None):
+def showCorpusList(corpusListDF, fields, centuries=None, categories=None, languages=None):
 
     # Filter by default fields.
     table = corpusListDF[fields]
@@ -74,6 +75,9 @@ def showCorpusList(corpusListDF, fields, centuries=None, categories=None):
 
     if categories is not None:
         table = filterCorpusList(table, 'categories', categories)
+
+    if languages is not None:
+        table = filterCorpusList(table, 'languages', languages)
 
     print(table)
 
@@ -100,7 +104,7 @@ def download(shortname, destination, markup=None):
 
     corpus = corpusList.ix[shortname]
 
-    print(corpus)
+    logging.info(corpus)
 
     text = corpus.text
 
