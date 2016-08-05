@@ -119,6 +119,10 @@ def download(shortname, destination, markup=None):
     if destination is None:
         destination = DOWNLOAD_DEST
 
+    # making sure the given path exists
+    if not os.path.exists(destination):
+        os.makedirs(destination)
+
     corpus = corpusList.ix[shortname]
 
     logging.info(corpus)
