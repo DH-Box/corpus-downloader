@@ -21,7 +21,7 @@ setup(
     include_package_data=True,
     keywords = ['nlp', 'text-analysis', 'corpora'],
     install_requires=[
-        'click','pandas','pyyaml','sh'
+        'click','pandas','pyyaml','sh','os','wget'
     ],
     entry_points='''
         [console_scripts]
