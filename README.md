@@ -39,6 +39,15 @@ shortname
 perseus-c-greek  Perseus Canonical Greek       NaN   classics
 ```
 
+### List only corpora containing texts in a certain language: 
+
+```
+$ corpus list --languages deu
+                                                title      languages
+shortname                                                           
+dta        Deutsches Textarchiv (German Text Archive)            deu
+```
+
 ### Download a corpus: 
 
 ```
