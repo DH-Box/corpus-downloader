@@ -6,6 +6,7 @@ import sh
 import logging
 from pkg_resources import resource_filename
 from os.path import expanduser
+import wget
 
 # Default download destination. 
 DOWNLOAD_DEST = expanduser("~") + "/corpora" 
@@ -159,10 +160,7 @@ def gitDownload(url, destination):
 
 def archiveDownload(url, destination, archiveType):
     logging.info('Now downloading archive file from URL %s to %s' % (url, destination))
-    # No-clobber makes it so that it doesn't download existing files.
-    for line in sh.wget(url, '--no-clobber', _err_to_out=True, _iter=True):
-        print(line)
-    filename = url.split('/')[-1]
+    filename = wget.download(url)
     if archiveType == 'zip':
         logging.info('Unzipping zip file from: ', filename)
         sh.unzip(filename)
