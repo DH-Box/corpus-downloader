@@ -5,41 +5,21 @@ from pandas import set_option as pandas_set_option
 import sh
 import logging
 from pkg_resources import resource_filename
+from os.path import expanduser
 
-class Config(object):
-    def __init__(self):
-        """Gets the config file. Unless the user specifies something,
-        this will be in the current directory."""
-
-        # Get config file, whereever that is in the user's system. 
-        config = resource_filename(__name__, 'config.yaml')
-
-        try:
-            self.config = open(config).read()
-        except:
-            raise click.ClickException("Couldn't find the config file from %s." % config)
-        try:
-            configDict = yaml.safe_load(self.config)
-            self.listFilename = configDict['corpuslist']
-            self.downloadTo = configDict['downloadTo']
-        except:
-            raise click.ClickException("Couldn't parse the config file. Is it in the right format?")
+# Default download destination. 
+DOWNLOAD_DEST = expanduser("~") + "/corpora" 
 
 @click.group()
 @click.option('--verbose', is_flag=True, help='Get extra information about what\'s happening behind the scenes.')
 @click.option('--debug', is_flag=True, help='Turn on debugging messages.')
 @click.version_option('0.1')
-@click.pass_context
-def cli(ctx, verbose, debug):
+def cli(verbose, debug):
     """Corpus is a command line tool that lists and downloads textual corpora.
 
     This tool was originally created for use in the Digital Humanities
     toolbox called DHBox.
     """
-    # Create a config object and remember it as as the context object.  From
-    # this point onwards other commands can refer to it by using the
-    # @pass_obj decorator.
-    ctx.obj = Config()
 
     # This allows Pandas to display at the current terminal width.
     pandas_set_option('display.width', None)
@@ -53,22 +33,18 @@ def cli(ctx, verbose, debug):
 @cli.command()
 @click.option('--centuries', help='Comma-separated list of centuries to display, e.g. 16th,17th.')
 @click.option('--categories', help='Comma-separated list of categories to display, e.g. literature,classics.')
-@click.pass_obj
-def list(ctx, centuries, categories):
+def list(centuries, categories):
     """Lists corpora available for download."""
     logging.info('Running subcommand list().')
-    click.echo(ctx.downloadTo)
     corpuslist = readCorpusList()
-    fields = ['title', 'centuries', 'categories']
+    fields = ['title', 'centuries', 'categories', 'languages']
     showCorpusList(corpuslist, fields, centuries, categories)
 
-@click.pass_obj
-def readCorpusList(ctx):
+def readCorpusList():
     """Reads the corpus list from corpus-list.yaml (or other file specified in the config).
     Returns a pandas data frame.
     """
     try:
-        # corpusList = open(ctx.listFilename).read()
         corpusListFile = resource_filename(__name__, 'corpus-list/corpus-list.yaml')
         corpusList = open(corpusListFile).read() 
     except:
@@ -77,7 +53,7 @@ def readCorpusList(ctx):
         corpusListDict = yaml.safe_load(corpusList)
         corpusListDF = df(corpusListDict).set_index('shortname')
     except:
-        raise click.ClickException("Couldn't parse the corpus list from %s. Is it in the right format?" % ctx.listFilename)
+        raise click.ClickException("Couldn't parse the corpus list from %s. Is it in the right format?" % corpusListFile)
 
     return corpusListDF
 
@@ -104,8 +80,7 @@ def showCorpusList(corpusListDF, fields, centuries=None, categories=None):
 @click.argument('shortname')
 @click.argument('destination', required=False)
 @click.option('--markup', help='Comma-separated markup type(s), in case there are multiple markup types in a corpus. E.g. --markup TEI,HTML', required=False)
-@click.pass_obj
-def download(ctx, shortname, destination, markup=None):
+def download(shortname, destination, markup=None):
     """Downloads a corpus.
 
     This will download the corpus with the given shortname into the
@@ -120,7 +95,7 @@ def download(ctx, shortname, destination, markup=None):
         raise click.ClickException("Couldn't find the specified corpus. Are you sure you have the right shortname?")
 
     if destination is None:
-        destination = ctx.downloadTo
+        destination = DOWNLOAD_DEST
 
     corpus = corpusList.ix[shortname]
 
