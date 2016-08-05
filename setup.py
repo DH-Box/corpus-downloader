@@ -12,12 +12,12 @@ setup(
     name='corpus-downloader',
     packages = ['corpus'], # this must be the same as the name above
     py_modules=['corpus'],
-    version='0.1.1',
+    version='0.1.2',
     description = 'A downloader for textual corpora, for use in digital humanities, corpus linguistics, and natural language processing.',
     author = 'Jonathan Reeve',
     author_email = 'jon.reeve@gmail.com',
     url = 'https://github.com/DH-Box/corpus-downloader',
-    download_url = 'https://github.com/DH-Box/corpus-downloader/tarball/0.1.1',
+    download_url = 'https://github.com/DH-Box/corpus-downloader/tarball/0.1.2',
     include_package_data=True,
     keywords = ['nlp', 'text-analysis', 'corpora'],
     install_requires=[
