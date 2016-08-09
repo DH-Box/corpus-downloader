@@ -10,6 +10,7 @@ import wget
 
 # Default download destination. 
 DOWNLOAD_DEST = expanduser("~") + "/corpora" 
+DEFAULT_SHOW_FIELDS = fields = ['title', 'centuries', 'categories', 'languages']
 
 @click.group()
 @click.option('--verbose', is_flag=True, help='Get extra information about what\'s happening behind the scenes.')
@@ -39,8 +40,22 @@ def list(centuries, categories, languages):
     """Lists corpora available for download."""
     logging.info('Running subcommand list().')
     corpuslist = readCorpusList()
-    fields = ['title', 'centuries', 'categories', 'languages']
-    showCorpusList(corpuslist, fields, centuries, categories, languages)
+    showCorpusList(corpuslist, DEFAULT_SHOW_FIELDS, centuries, categories, languages)
+
+@cli.command()
+@click.argument('shortname')
+def show(shortname):
+    """Shows the details of a corpus"""
+    logging.info('Running subcommand show().')
+    corpuslist = readCorpusList()
+
+    if shortname not in corpuslist.index.tolist():
+        raise click.ClickException("Couldn't find the specified corpus. Are you sure you have the right shortname?")
+    
+    corpus = corpuslist.ix[[shortname]]
+    logging.info(corpus)
+    showCorpusList(corpus, DEFAULT_SHOW_FIELDS, None, None, None)
+
 
 def readCorpusList():
     """Reads the corpus list from corpus-list.yaml (or other file specified in the config).
