@@ -84,16 +84,19 @@ def showCorpusList(corpusListDF, fields, centuries=None, categories=None, langua
 @cli.command()
 @click.argument('shortname')
 def show(shortname):
-    """Shows the details of a corpus"""
+    """Shows all the details of a corpus."""
     logging.info('Running subcommand show().')
     corpuslist = readCorpusList()
 
     if shortname not in corpuslist.index.tolist():
         raise click.ClickException("Couldn't find the specified corpus. Are you sure you have the right shortname?")
     
-    corpus = corpuslist.ix[[shortname]]
-    logging.info(corpus)
-    showCorpusList(corpus, DEFAULT_SHOW_FIELDS, None, None, None)
+    corpus = corpuslist.ix[shortname]
+
+    print("Details for %s: \n" % corpus.title)
+
+    # Show all the fields for now. 
+    print(corpus) 
 
 @cli.command()
 @click.argument('shortname')
