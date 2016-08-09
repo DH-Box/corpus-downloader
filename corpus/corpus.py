@@ -175,7 +175,7 @@ def downloadFromRecord(record, url, destination):
 def gitDownload(url, destination):
     print('Now git cloning from URL %s to %s' % (url, destination))
     print(sh.pwd())
-    for line in sh.git.clone(url, '--progress', '--recursive', _err_to_out=True, _iter=True):
+    for line in sh.git.clone(url, '--progress', '--recursive', _err_to_out=True, _iter=True, _out_bufsize=100):
         print(line)
     return
 
