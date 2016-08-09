@@ -42,21 +42,6 @@ def list(centuries, categories, languages):
     corpuslist = readCorpusList()
     showCorpusList(corpuslist, DEFAULT_SHOW_FIELDS, centuries, categories, languages)
 
-@cli.command()
-@click.argument('shortname')
-def show(shortname):
-    """Shows the details of a corpus"""
-    logging.info('Running subcommand show().')
-    corpuslist = readCorpusList()
-
-    if shortname not in corpuslist.index.tolist():
-        raise click.ClickException("Couldn't find the specified corpus. Are you sure you have the right shortname?")
-    
-    corpus = corpuslist.ix[[shortname]]
-    logging.info(corpus)
-    showCorpusList(corpus, DEFAULT_SHOW_FIELDS, None, None, None)
-
-
 def readCorpusList():
     """Reads the corpus list from corpus-list.yaml (or other file specified in the config).
     Returns a pandas data frame.
@@ -95,6 +80,20 @@ def showCorpusList(corpusListDF, fields, centuries=None, categories=None, langua
         table = filterCorpusList(table, 'languages', languages)
 
     print(table)
+
+@cli.command()
+@click.argument('shortname')
+def show(shortname):
+    """Shows the details of a corpus"""
+    logging.info('Running subcommand show().')
+    corpuslist = readCorpusList()
+
+    if shortname not in corpuslist.index.tolist():
+        raise click.ClickException("Couldn't find the specified corpus. Are you sure you have the right shortname?")
+    
+    corpus = corpuslist.ix[[shortname]]
+    logging.info(corpus)
+    showCorpusList(corpus, DEFAULT_SHOW_FIELDS, None, None, None)
 
 @cli.command()
 @click.argument('shortname')
