@@ -1,2 +1,1 @@
-corpuslist: corpus-list/corpus-list.yaml   
-downloadTo: /home/jon/corpora
+corpus_list_url: https://raw.githubusercontent.com/JonathanReeve/corpus-list/master/corpus-list.yaml

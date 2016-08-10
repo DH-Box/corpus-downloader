@@ -5,12 +5,54 @@ from pandas import set_option as pandas_set_option
 import sh
 import logging
 from pkg_resources import resource_filename
-from os.path import expanduser
+from os.path import expanduser, exists, join
+from os import makedirs
 import wget
 
-# Default download destination. 
-DOWNLOAD_DEST = expanduser("~") + "/corpora" 
 DEFAULT_SHOW_FIELDS = fields = ['title', 'centuries', 'categories', 'languages']
+PATH_TO_CONFIG = resource_filename(__name__, 'config.yaml')
+CORPORA_LIST_FILE = "corpora"
+CONFIG = yaml.safe_load(open(PATH_TO_CONFIG, 'r'))
+
+def get_config_corpora_list_url():
+    """returns the url from where the corpus list can be downloaded"""
+    return CONFIG['corpus_list_url']
+
+def get_config_download_destination_path():
+    """returns the path where corpora will be downloaded"""
+    default_download_path = expanduser("~") + "/corpora"
+    if 'destination_path' in CONFIG:
+        return CONFIG['destination_path']
+    return default_download_path
+
+def create_directory_if_needed(directory):
+    if not exists(directory):
+        makedirs(directory)
+
+def update_corpora_list():
+    """
+    downloads corpus-list.yaml from the url given in the config
+    """
+    corpora_list_url = get_config_corpora_list_url()
+    logging.info('Now downloading corpora list from URL %s' % (corpora_list_url))
+    downloadFromRecord({'file-format': 'yaml'},corpora_list_url, get_config_download_destination_path())
+
+def get_or_download_corpora_list():
+    """
+    if corpus-list.yaml does not exist it will download it
+    """
+    corpora_list_yaml_path = join(get_config_download_destination_path(), 'corpus-list.yaml')
+    if not exists(corpora_list_yaml_path):
+        update_corpora_list()
+    return corpora_list_yaml_path
+
+def setup():
+    """
+    ensures that the default destination path exists
+    ensures that the default corpora list source exists
+    """
+    create_directory_if_needed(get_config_download_destination_path())
+    get_or_download_corpora_list()
 
 @click.group()
 @click.option('--verbose', is_flag=True, help='Get extra information about what\'s happening behind the scenes.')
@@ -42,12 +84,17 @@ def list(centuries, categories, languages):
     corpuslist = readCorpusList()
     showCorpusList(corpuslist, DEFAULT_SHOW_FIELDS, centuries, categories, languages)
 
+@cli.command()
+def update():
+    print("updating corpora list....")
+    update_corpora_list()
+
 def readCorpusList():
     """Reads the corpus list from corpus-list.yaml (or other file specified in the config).
     Returns a pandas data frame.
     """
+    corpusListFile = get_or_download_corpora_list()
     try:
-        corpusListFile = resource_filename(__name__, 'corpus-list/corpus-list.yaml')
         corpusList = open(corpusListFile).read() 
     except:
         raise click.ClickException("Couldn't read the corpus list from %s." % corpusListFile)
@@ -117,7 +164,10 @@ def download(shortname, destination, markup=None):
         raise click.ClickException("Couldn't find the specified corpus. Are you sure you have the right shortname?")
 
     if destination is None:
-        destination = DOWNLOAD_DEST
+        destination = get_config_download_destination_path()
+
+    # making sure the given path exists
+    create_directory_if_needed(destination)
 
     corpus = corpusList.ix[shortname]
 
@@ -171,6 +221,8 @@ def downloadFromRecord(record, url, destination):
         gitDownload(url, destination)
     if form == 'zip' or form == 'tar.gz':
         archiveDownload(url, destination, form)
+    if form == 'yaml':
+        wget.download(url)
 
 def gitDownload(url, destination):
     print('Now git cloning from URL %s to %s' % (url, destination))
@@ -193,4 +245,5 @@ def archiveDownload(url, destination, archiveType):
     return
 
 if __name__ == '__main__':
+    setup()
     cli()
