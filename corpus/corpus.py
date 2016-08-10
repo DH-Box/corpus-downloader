@@ -10,7 +10,7 @@ from os import makedirs
 import wget
 
 DEFAULT_SHOW_FIELDS = fields = ['title', 'centuries', 'categories', 'languages']
-CORPORA_LIST_FILE = "corpora"
+CORPORA_LIST_URL = 'https://raw.githubusercontent.com/JonathanReeve/corpus-list/master/corpus-list.yaml' 
 
 def get_config_download_destination_path():
     """returns the path where corpora will be downloaded"""
@@ -25,8 +25,8 @@ def update_corpora_list():
     """
     downloads corpus-list.yaml from the url given in the config
     """
-    logging.info('Now downloading corpora list from URL %s' % (corpora_list_url))
-    downloadFromRecord({'file-format': 'yaml'},corpora_list_url, get_config_download_destination_path())
+    logging.info('Now downloading corpora list from URL %s' % (CORPORA_LIST_URL))
+    downloadFromRecord({'file-format': 'yaml'}, CORPORA_LIST_URL, get_config_download_destination_path())
 
 def get_or_download_corpora_list():
     """
@@ -40,6 +40,7 @@ def get_or_download_corpora_list():
         corpora_list_yaml_path = join(get_config_download_destination_path(), 'corpus-list.yaml')
     if not exists(corpora_list_yaml_path):
         # Download it if it's not in either of those places.  
+        logging.info("Can't find the corpus list in the ordinary places. Downloading a new one.")
         update_corpora_list()
         corpora_list_yaml_path = join(get_config_download_destination_path(), 'corpus-list.yaml')
     return corpora_list_yaml_path
