@@ -32,17 +32,20 @@ def get_or_download_corpora_list():
     """
     if corpus-list.yaml does not exist it will download it
     """
-    try: 
-        # First try to get the corpus list the standard way, through the package resource. 
-        corpora_list_yaml_path = resource_filename(__name__, 'corpus-list/corpus-list.yaml')
-    except: 
+    # First try to get the corpus list the standard way, through the package resource. 
+    corpora_list_yaml_path = resource_filename(__name__, 'corpus-list/corpus-list.yaml')
+
+    if not exists(corpora_list_yaml_path):
         # If that doesn't work for some reason, look for it in the download dest path.  
+        logging.debug("Couldn't find the corpus list at %s" % corpora_list_yaml_path)
         corpora_list_yaml_path = join(get_config_download_destination_path(), 'corpus-list.yaml')
+
     if not exists(corpora_list_yaml_path):
         # Download it if it's not in either of those places.  
-        logging.info("Can't find the corpus list in the ordinary places. Downloading a new one.")
+        logging.debug("Couldn't find the corpus list at %s, either. Downloading a new one." % corpora_list_yaml_path)
         update_corpora_list()
         corpora_list_yaml_path = join(get_config_download_destination_path(), 'corpus-list.yaml')
+
     return corpora_list_yaml_path
 
 def setup():
