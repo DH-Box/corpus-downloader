@@ -49,14 +49,6 @@ def get_or_download_corpora_list():
 
     return corpora_list_yaml_path
 
-def setup():
-    """
-    ensures that the default destination path exists
-    ensures that the default corpora list source exists
-    """
-    create_directory_if_needed(get_download_destination_path())
-    get_or_download_corpora_list()
-
 @click.group()
 @click.option('--verbose', is_flag=True, help='Get extra information about what\'s happening behind the scenes.')
 @click.option('--debug', is_flag=True, help='Turn on debugging messages.')
@@ -76,6 +68,10 @@ def cli(verbose, debug):
 
     if debug:
         logging.basicConfig(level=logging.DEBUG)
+
+    # Setup
+    create_directory_if_needed(get_download_destination_path())
+    get_or_download_corpora_list()
 
 @cli.command()
 @click.option('--centuries', help='Comma-separated list of centuries to display, e.g. 16th,17th.')
@@ -248,5 +244,4 @@ def archiveDownload(url, destination, archiveType):
     return
 
 if __name__ == '__main__':
-    setup()
     cli()
