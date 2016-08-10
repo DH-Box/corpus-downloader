@@ -102,23 +102,15 @@ Commands:
   list      Lists corpora available for download.
 ```
 
-
-## Configuring
-
-Corpus reads a config file from config.yaml, which should be in the same directory as corpus.py. It has these configurable items: 
-
-```
-corpuslist: corpus-list/corpus-list.yaml   
-downloadTo: ~/corpora
-```
-
-`corpuslist` is a path to the corpus catalog. You can add your own corpora here if you follow the YAML format of the existing entries. 
-
-`downloadTo` is the destination location on your local machine, where the corpora will be downloaded.  
-
 ## Installing
 
-Until this package shows up on Pypi, you can clone this repository (recursively, so you get the corpus list, too), change into this program’s directory and install it with pip3. (Make sure you have pip3, the python package manager for Python 3 installed first.) 
+This program is now on PyPi. You can install it by running: 
+
+```
+sudo pip3 install corpus-downloader
+```
+
+Alternatively, you can clone this repository (*recursively*, so you get the corpus list, too), change into this program’s directory and install it with pip3. (Make sure you have pip3, the python package manager for Python 3 installed first.) 
 
 ```
 git clone --recursive https://github.com/DH-Box/corpus-downloader
