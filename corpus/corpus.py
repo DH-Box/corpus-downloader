@@ -25,7 +25,6 @@ def update_corpora_list():
     """
     downloads corpus-list.yaml from the url given in the config
     """
-    corpora_list_url = get_config_corpora_list_url()
     logging.info('Now downloading corpora list from URL %s' % (corpora_list_url))
     downloadFromRecord({'file-format': 'yaml'},corpora_list_url, get_config_download_destination_path())
 
@@ -42,6 +41,7 @@ def get_or_download_corpora_list():
     if not exists(corpora_list_yaml_path):
         # Download it if it's not in either of those places.  
         update_corpora_list()
+        corpora_list_yaml_path = join(get_config_download_destination_path(), 'corpus-list.yaml')
     return corpora_list_yaml_path
 
 def setup():
