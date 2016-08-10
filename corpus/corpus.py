@@ -10,19 +10,11 @@ from os import makedirs
 import wget
 
 DEFAULT_SHOW_FIELDS = fields = ['title', 'centuries', 'categories', 'languages']
-PATH_TO_CONFIG = resource_filename(__name__, 'config.yaml')
 CORPORA_LIST_FILE = "corpora"
-CONFIG = yaml.safe_load(open(PATH_TO_CONFIG, 'r'))
-
-def get_config_corpora_list_url():
-    """returns the url from where the corpus list can be downloaded"""
-    return CONFIG['corpus_list_url']
 
 def get_config_download_destination_path():
     """returns the path where corpora will be downloaded"""
     default_download_path = expanduser("~") + "/corpora"
-    if 'destination_path' in CONFIG:
-        return CONFIG['destination_path']
     return default_download_path
 
 def create_directory_if_needed(directory):
