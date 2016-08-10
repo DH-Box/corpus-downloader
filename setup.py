@@ -19,6 +19,9 @@ setup(
     url = 'https://github.com/DH-Box/corpus-downloader',
     download_url = 'https://github.com/DH-Box/corpus-downloader/tarball/0.1.3',
     include_package_data=True,
+    package_data = { 
+        'corpus': ['*.yaml']
+        },
     keywords = ['nlp', 'text-analysis', 'corpora'],
     install_requires=[
         'click','pandas','pyyaml','sh','wget'
