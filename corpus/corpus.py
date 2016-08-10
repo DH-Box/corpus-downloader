@@ -85,7 +85,8 @@ def list(centuries, categories, languages):
 
 @cli.command()
 def update():
-    print("updating corpora list....")
+    """Updates the list of available corpora."""
+    print("Updating corpora list...")
     update_corpora_list()
 
 def readCorpusList():
@@ -211,10 +212,8 @@ def downloadFromRecord(record, url, destination):
     """ This helper function takes a markup record with the fields `url` and `file-format`,
     and downloads it according to its file type.
     """
-    logging.info('\nDownloading from record: !\n', record)
+    logging.info('\nDownloading from record: %s \n' %  record)
     form = record['file-format']
-    print('form: ', form)
-    print('url: ', url)
     print(sh.cd(destination))
     if form == 'git':
         gitDownload(url, destination)
