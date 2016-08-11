@@ -79,11 +79,12 @@ def cli(verbose, debug):
 @click.option('--centuries', help='Comma-separated list of centuries to display, e.g. 16th,17th.')
 @click.option('--categories', help='Comma-separated list of categories to display, e.g. literature,classics.')
 @click.option('--languages', help='Comma-separated list of languages to display, e.g. eng,deu.')
-def list(centuries, categories, languages):
+@click.option('--html', is_flag=True, default=False, help='HTML output for the corpus list.')
+def list(centuries, categories, languages, html):
     """Lists corpora available for download."""
     logging.info('Running subcommand list().')
     corpuslist = readCorpusList()
-    showCorpusList(corpuslist, DEFAULT_SHOW_FIELDS, centuries, categories, languages)
+    showCorpusList(corpuslist, DEFAULT_SHOW_FIELDS, centuries, categories, languages, html)
 
 @cli.command()
 def update():
@@ -114,7 +115,7 @@ def filterCorpusList(corpuslist, field, values):
     corpuslist = corpuslist[corpuslist[field].str.contains(values, na=False)]
     return corpuslist
 
-def showCorpusList(corpusListDF, fields, centuries=None, categories=None, languages=None):
+def showCorpusList(corpusListDF, fields, centuries=None, categories=None, languages=None, html=None):
 
     # Filter by default fields.
     table = corpusListDF[fields]
@@ -127,6 +128,9 @@ def showCorpusList(corpusListDF, fields, centuries=None, categories=None, langua
 
     if languages is not None:
         table = filterCorpusList(table, 'languages', languages)
+
+    if html: 
+        table = table.to_html() 
 
     print(table)
 
