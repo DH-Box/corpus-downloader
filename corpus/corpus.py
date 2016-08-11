@@ -12,13 +12,14 @@ import wget
 DEFAULT_SHOW_FIELDS = fields = ['title', 'centuries', 'categories', 'languages']
 CORPORA_LIST_URL = 'https://raw.githubusercontent.com/JonathanReeve/corpus-list/master/corpus-list.yaml' 
 
-def get_config_download_destination_path():
+def get_download_destination_path():
     """returns the path where corpora will be downloaded"""
     default_download_path = expanduser("~") + "/corpora"
     return default_download_path
 
 def create_directory_if_needed(directory):
     if not exists(directory):
+        logging.info("Directory %s doesn't exist. Creating it." % directory)
         makedirs(directory)
 
 def update_corpora_list():
@@ -26,32 +27,27 @@ def update_corpora_list():
     downloads corpus-list.yaml from the url given in the config
     """
     logging.info('Now downloading corpora list from URL %s' % (CORPORA_LIST_URL))
-    downloadFromRecord({'file-format': 'yaml'}, CORPORA_LIST_URL, get_config_download_destination_path())
+    downloadFromRecord({'file-format': 'yaml'}, CORPORA_LIST_URL, get_download_destination_path())
 
 def get_or_download_corpora_list():
     """
     if corpus-list.yaml does not exist it will download it
     """
-    try: 
-        # First try to get the corpus list the standard way, through the package resource. 
-        corpora_list_yaml_path = resource_filename(__name__, 'corpus-list/corpus-list.yaml')
-    except: 
+    # First try to get the corpus list the standard way, through the package resource. 
+    corpora_list_yaml_path = resource_filename(__name__, 'corpus-list/corpus-list.yaml')
+
+    if not exists(corpora_list_yaml_path):
         # If that doesn't work for some reason, look for it in the download dest path.  
-        corpora_list_yaml_path = join(get_config_download_destination_path(), 'corpus-list.yaml')
+        logging.debug("Couldn't find the corpus list at %s" % corpora_list_yaml_path)
+        corpora_list_yaml_path = join(get_download_destination_path(), 'corpus-list.yaml')
+
     if not exists(corpora_list_yaml_path):
         # Download it if it's not in either of those places.  
-        logging.info("Can't find the corpus list in the ordinary places. Downloading a new one.")
+        logging.debug("Couldn't find the corpus list at %s, either. Downloading a new one." % corpora_list_yaml_path)
         update_corpora_list()
-        corpora_list_yaml_path = join(get_config_download_destination_path(), 'corpus-list.yaml')
-    return corpora_list_yaml_path
+        corpora_list_yaml_path = join(get_download_destination_path(), 'corpus-list.yaml')
 
-def setup():
-    """
-    ensures that the default destination path exists
-    ensures that the default corpora list source exists
-    """
-    create_directory_if_needed(get_config_download_destination_path())
-    get_or_download_corpora_list()
+    return corpora_list_yaml_path
 
 @click.group()
 @click.option('--verbose', is_flag=True, help='Get extra information about what\'s happening behind the scenes.')
@@ -73,6 +69,10 @@ def cli(verbose, debug):
     if debug:
         logging.basicConfig(level=logging.DEBUG)
 
+    # Setup
+    create_directory_if_needed(get_download_destination_path())
+    get_or_download_corpora_list()
+
 @cli.command()
 @click.option('--centuries', help='Comma-separated list of centuries to display, e.g. 16th,17th.')
 @click.option('--categories', help='Comma-separated list of categories to display, e.g. literature,classics.')
@@ -85,7 +85,8 @@ def list(centuries, categories, languages):
 
 @cli.command()
 def update():
-    print("updating corpora list....")
+    """Updates the list of available corpora."""
+    print("Updating corpora list...")
     update_corpora_list()
 
 def readCorpusList():
@@ -163,7 +164,7 @@ def download(shortname, destination, markup=None):
         raise click.ClickException("Couldn't find the specified corpus. Are you sure you have the right shortname?")
 
     if destination is None:
-        destination = get_config_download_destination_path()
+        destination = get_download_destination_path()
 
     # making sure the given path exists
     create_directory_if_needed(destination)
@@ -211,10 +212,8 @@ def downloadFromRecord(record, url, destination):
     """ This helper function takes a markup record with the fields `url` and `file-format`,
     and downloads it according to its file type.
     """
-    logging.info('\nDownloading from record: !\n', record)
+    logging.info('\nDownloading from record: %s \n' %  record)
     form = record['file-format']
-    print('form: ', form)
-    print('url: ', url)
     print(sh.cd(destination))
     if form == 'git':
         gitDownload(url, destination)
@@ -244,5 +243,4 @@ def archiveDownload(url, destination, archiveType):
     return
 
 if __name__ == '__main__':
-    setup()
     cli()
