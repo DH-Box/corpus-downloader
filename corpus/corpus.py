@@ -18,6 +18,7 @@ def get_download_destination_path():
     return default_download_path
 
 def create_directory_if_needed(directory):
+    logging.info('Checking to see if %s exists.' % directory)
     if not exists(directory):
         logging.info("Directory %s doesn't exist. Creating it." % directory)
         makedirs(directory)
@@ -70,6 +71,7 @@ def cli(verbose, debug):
         logging.basicConfig(level=logging.DEBUG)
 
     # Setup
+    logging.info('Running setup functions.') 
     create_directory_if_needed(get_download_destination_path())
     get_or_download_corpora_list()
 
@@ -140,7 +142,7 @@ def show(shortname):
     
     corpus = corpuslist.ix[shortname]
 
-    print("Details for %s: \n" % corpus.title)
+    print("\nDetails for %s: \n" % corpus.title)
 
     # Show all the fields for now. 
     print(corpus) 
