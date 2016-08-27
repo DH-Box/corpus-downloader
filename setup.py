@@ -1,13 +1,6 @@
 import sys
 from distutils.core import setup
 
-if sys.version_info[0] < 3:
-    version = str(sys.version_info[0]) + '.' + str(sys.version_info[1])
-    sys.exit("""
-    Sorry! Your Python version is %s, but this program requires at least
-    Python 3. Please upgrade your Python installation, or try using pip3
-    instead of pip.""" % version)
-
 setup(
     name='corpus-downloader',
     packages = ['corpus'], # this must be the same as the name above
