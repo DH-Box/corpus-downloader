@@ -8,6 +8,7 @@ from pkg_resources import resource_filename
 from os.path import expanduser, exists, join
 from os import makedirs
 import wget
+import git
 
 DEFAULT_SHOW_FIELDS = fields = ['title', 'centuries', 'categories', 'languages']
 CORPORA_LIST_URL = 'https://raw.githubusercontent.com/JonathanReeve/corpus-list/master/corpus-list.yaml' 
@@ -228,11 +229,20 @@ def downloadFromRecord(record, url, destination):
     if form == 'yaml':
         wget.download(url)
 
+# For getting a progress bar.
+# Adapted from https://stackoverflow.com/a/38780917/584121
+class Progress(git.remote.RemoteProgress):
+    def update(self, op_code, cur_count, max_count=None, message=''):
+        # FIXME: this fails since apparently some of the cur_counts or max_counts being returned
+        # are not capable of being converted into floats (like they're empty string)
+        # percent = ( float(cur_count) / float(max_count) ) * 100
+        print('Stage %s: %s, %s, %s)' % (op_code, cur_count, max_count, message))
+
 def gitDownload(url, destination):
     print('Now git cloning from URL %s to %s' % (url, destination))
     print(sh.pwd())
-    for line in sh.git.clone(url, '--progress', '--recursive', _err_to_out=True, _iter=True, _out_bufsize=100):
-        print(line)
+
+    repo = git.Repo.clone_from(url, destination, progress=Progress())
     return
 
 def archiveDownload(url, destination, archiveType):
