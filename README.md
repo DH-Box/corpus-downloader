@@ -1,4 +1,4 @@
-#Corpus: A Textual Corpus Downloader for Digital Humanities
+# Corpus: A Textual Corpus Downloader for Digital Humanities
 
 Corpus is a command-line textual corpus downloader, designed for use in the Digital Humanities. This program is useful for anyone that needs to download large amounts of text, say, for text analysis. Want to conduct a digital macroanalysis of all Shakespeare plays? How about a linguistic study of a news corpus? This tool helps you get those texts, so you spend less time online and more time with the analysis itself. 
 
@@ -104,6 +104,8 @@ Commands:
 
 ## Installing
 
+Since this is a command-line program, you'll need a Linux-style command line to run it. So if you run Windows, you'll first need to install a Linux-like environment like Ubuntu for Windows or Cygwin. 
+
 This program is now on PyPi. You can install it by running: 
 
 ```
@@ -117,3 +119,7 @@ git clone --recursive https://github.com/DH-Box/corpus-downloader
 cd corpus-downloader
 pip3 install .
 ```
+
+## Using on DH Box
+
+You can also use `corpus-downloader` on [DH Box](http://dhbox.org), the Digital Humanities cloud workstation platform. Just spin up a new DH Box, log in, and click the "command line" tab. Then log in to the command line and run `sudo pip3 install corpus-downloader`. Now you can run `corpus list` and `corpus download` to download textual corpora.
